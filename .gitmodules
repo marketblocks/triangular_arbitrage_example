@@ -1,0 +1,3 @@
+[submodule "CryptoBot"]
+	path = CryptoBot
+	url = https://github.com/Jordan181/CryptoBot

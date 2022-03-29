@@ -7,7 +7,10 @@ cmake_minimum_required (VERSION 3.8)
 
 project ("triangular_arbitrage_example")
 
+add_subdirectory("CryptoBot")
+
 # Include sub-projects.
 add_executable (triangular_arbitrage_example "main.cpp" "trinagular_arbitrage.cpp" "triangular_arbitrage.h")
 
-target_link_libraries(triangular_arbitrage_example LINK_PUBLIC deps/CryptoBot_lib)
+target_link_libraries(triangular_arbitrage_example CryptoBot_lib)
+target_include_directories(triangular_arbitrage_example PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/CryptoBot/src)
