@@ -48,6 +48,7 @@ See `triangular_arbitrage::intialise(const strategy_initialiser&)` for the initi
 
 See `triangular_arbitrage::run_iteration()` for the active stage of the strategy. This is where any order book updates are read and the associated sequences are checked for potential arbitrage opportunities.
 
+All marketblocks types and functions are located within the `mb` namespace.
 
 ### Running the Example Build
 
