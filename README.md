@@ -64,10 +64,23 @@ Various parameters may be adjusted through the config files located inside the `
   
 </details>
 <details><summary>paper_trading.json</summary>
+  
 Contains parameters used by the trading simulator when the Live-Test run mode is enabled
   
   - `balances` - Initial virtual balances
   - `feeSchedule` - Simulated fees given as a list of pairs where the first element represents the minimum traded volume to reach that fee level and the second element represents the fee as a percentage.
+  
+</details>
+
+<details><summary>kraken.json</summary>
+  
+Contains parameters required to access authenticated endpoints when using the Kraken exchange
+  
+</details>
+
+<details><summary>coinbase.json</summary>
+  
+Contains parameters required to access authenticated endpoints when using the Coinbase exchange
   
 </details>
 
