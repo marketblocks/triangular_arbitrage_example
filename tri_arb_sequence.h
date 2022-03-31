@@ -3,21 +3,19 @@
 #include "trading/tradable_pair.h"
 #include "trading/trading_constants.h"
 
-using namespace cb;
-
 class sequence_step
 {
 private:
-	tradable_pair _pair;
-	trade_action _action;
+	cb::tradable_pair _pair;
+	cb::trade_action _action;
 
 public:
-	constexpr sequence_step(tradable_pair pair, trade_action action)
+	constexpr sequence_step(cb::tradable_pair pair, cb::trade_action action)
 		: _pair{ std::move(pair) }, _action{ std::move(action) }
 	{}
 
-	constexpr const tradable_pair& pair() const noexcept { return _pair; }
-	constexpr const trade_action& action() const noexcept { return _action; }
+	constexpr const cb::tradable_pair& pair() const noexcept { return _pair; }
+	constexpr const cb::trade_action& action() const noexcept { return _action; }
 
 	constexpr bool operator==(const sequence_step& other) const noexcept
 	{

@@ -11,39 +11,37 @@
 #include "common/utils/financeutils.h"
 #include "logging/logger.h"
 
-using namespace cb;
-
 namespace
 {
 	struct sequence_prices
 	{
-		order_book_entry firstEntry;
+		cb::order_book_entry firstEntry;
 		double firstFee;
 
-		order_book_entry middleEntry;
+		cb::order_book_entry middleEntry;
 		double middleFee;
 
-		order_book_entry lastEntry;
+		cb::order_book_entry lastEntry;
 		double lastFee;
 	};
 
 	// Helper method for creating a fee-adjusted trade description of a specified value
-	trade_description create_trade(const sequence_step& sequenceStep, double assetPrice, double tradeValue, double fee)
+	cb::trade_description create_trade(const sequence_step& sequenceStep, double assetPrice, double tradeValue, double fee)
 	{
-		double volume = calculate_volume(assetPrice, tradeValue);
+		double volume = cb::calculate_volume(assetPrice, tradeValue);
 
-		if (sequenceStep.action() == trade_action::BUY)
+		if (sequenceStep.action() == cb::trade_action::BUY)
 		{
 			// If buying, adjust volume down
-			volume -= calculate_fee(tradeValue, fee);
+			volume -= cb::calculate_fee(tradeValue, fee);
 		}
 		else
 		{
 			// If selling, adjust volume up
-			volume += calculate_fee(volume, fee);
+			volume += cb::calculate_fee(volume, fee);
 		}
 
-		return trade_description(order_type::LIMIT, sequenceStep.pair(), sequenceStep.action(), assetPrice, volume);
+		return cb::trade_description(cb::order_type::LIMIT, sequenceStep.pair(), sequenceStep.action(), assetPrice, volume);
 	}
 
 	double calculate_potential_gain(const tri_arb_sequence& sequence, const sequence_prices& prices)
@@ -56,11 +54,11 @@ namespace
 		double g3 = calculate_trade_gain(prices.lastEntry.price(), g2, prices.lastFee, sequence.last().action());
 
 		// Simple percentage diff calculate using (B-A)/A
-		return calculate_percentage_diff(tradeValue, g3);
+		return cb::calculate_percentage_diff(tradeValue, g3);
 	}
 
 	// Helper method for selecting the best order book entry on a particular side
-	order_book_entry get_best_entry(std::shared_ptr<exchange> exchange, sequence_step sequenceStep)
+	cb::order_book_entry get_best_entry(std::shared_ptr<cb::exchange> exchange, sequence_step sequenceStep)
 	{
 		return select_best_entry(
 			// get_order_book returns a snapshot of the current order book for a given pair at a specified depth
@@ -69,7 +67,7 @@ namespace
 	}
 
 	// Compute all potential pairs and their associated actions for the middle trade of a triangular arbitrage sequence
-	std::vector<sequence_step> get_middle_steps(const std::vector<tradable_pair>& allPairs, const sequence_step& firstStep)
+	std::vector<sequence_step> get_middle_steps(const std::vector<cb::tradable_pair>& allPairs, const sequence_step& firstStep)
 	{
 		std::vector<sequence_step> steps;
 
@@ -82,9 +80,9 @@ namespace
 				continue;
 			}
 
-			trade_action action = gainedAsset == middlePair.asset()
-				? trade_action::SELL
-				: trade_action::BUY;
+			cb::trade_action action = gainedAsset == middlePair.asset()
+				? cb::trade_action::SELL
+				: cb::trade_action::BUY;
 
 			steps.emplace_back(middlePair, action);
 		}
@@ -94,11 +92,11 @@ namespace
 
 	// Compute all possible triangular sequence for a given starting pair and action (buy/sell)
 	void create_sequences(
-		std::unordered_map<tradable_pair, std::vector<tri_arb_sequence>>& sequences,
-		const std::vector<tradable_pair>& allPairs,
+		std::unordered_map<cb::tradable_pair, std::vector<tri_arb_sequence>>& sequences,
+		const std::vector<cb::tradable_pair>& allPairs,
 		const sequence_step& firstStep)
 	{
-		std::string_view baseCurrency = firstStep.action() == trade_action::BUY
+		std::string_view baseCurrency = firstStep.action() == cb::trade_action::BUY
 			? firstStep.pair().price_unit()
 			: firstStep.pair().asset();
 
@@ -112,9 +110,9 @@ namespace
 			{
 				if (finalPair.contains(baseCurrency) && finalPair.contains(middleGainedAsset))
 				{
-					trade_action finalAction = finalPair.price_unit() == middleGainedAsset
-						? trade_action::BUY
-						: trade_action::SELL;
+					cb::trade_action finalAction = finalPair.price_unit() == middleGainedAsset
+						? cb::trade_action::BUY
+						: cb::trade_action::SELL;
 
 					tri_arb_sequence sequence
 					{
@@ -132,11 +130,11 @@ namespace
 		}
 	}
 
-	std::unordered_map<tradable_pair, std::vector<tri_arb_sequence>> get_tri_arb_sequences(std::shared_ptr<exchange> exchange)
+	std::unordered_map<cb::tradable_pair, std::vector<tri_arb_sequence>> get_tri_arb_sequences(std::shared_ptr<cb::exchange> exchange)
 	{
 		// Exchange REST endpoint for getting all pairs that can be traded on the exchange
-		std::vector<tradable_pair> tradablePairs = exchange->get_tradable_pairs();
-		std::unordered_map<tradable_pair, std::vector<tri_arb_sequence>> sequences;
+		std::vector<cb::tradable_pair> tradablePairs = exchange->get_tradable_pairs();
+		std::unordered_map<cb::tradable_pair, std::vector<tri_arb_sequence>> sequences;
 
 		for (auto& firstPair : tradablePairs)
 		{
@@ -144,13 +142,13 @@ namespace
 			create_sequences(
 				sequences,
 				tradablePairs,
-				sequence_step{ firstPair, trade_action::BUY });
+				sequence_step{ firstPair, cb::trade_action::BUY });
 
 			// Add sequences that start with a SELL on the first pair
 			create_sequences(
 				sequences,
 				tradablePairs,
-				sequence_step{ firstPair, trade_action::SELL });
+				sequence_step{ firstPair, cb::trade_action::SELL });
 			
 		}
 
@@ -160,7 +158,7 @@ namespace
 
 // Called by runner framework to carry out any initialisation work. 
 // strategy_initialiser contains all exchange API classes that have been specified in the config file runner.json
-void triangular_arbitrage::initialise(const strategy_initialiser& initaliser)
+void triangular_arbitrage::initialise(const cb::strategy_initialiser& initaliser)
 {
 	for (auto exchange : initaliser.exchanges())
 	{
@@ -168,7 +166,7 @@ void triangular_arbitrage::initialise(const strategy_initialiser& initaliser)
 		tri_arb_spec& spec = _specs.emplace_back(exchange, get_tri_arb_sequences(exchange));
 
 		// Subscribe to exchange's order book websocket feed for all trading pairs identified as part of a valid sequence
-		websocket_stream& websocketStream = exchange->get_websocket_stream();
+		cb::websocket_stream& websocketStream = exchange->get_websocket_stream();
 		websocketStream.connect();
 		websocketStream.subscribe_order_book(spec.get_all_tradable_pairs());
 	}
@@ -184,7 +182,7 @@ void triangular_arbitrage::run_iteration()
 		{
 			// Retrieve the pre-computed sequences relating to the particular trading pair
 			const std::vector<tri_arb_sequence>& sequences{ spec.get_sequences(spec.order_book_message_queue().pop()) };
-			std::shared_ptr<exchange> exchange{ spec.exchange() };
+			std::shared_ptr<cb::exchange> exchange{ spec.exchange() };
 
 			for (auto& sequence : sequences)
 			{
@@ -201,7 +199,7 @@ void triangular_arbitrage::run_iteration()
 				};
 
 				double potentialGain = calculate_potential_gain(sequence, prices);
-				logger::instance().info("Sequence: {0}. Percentage Diff: {1}", sequence.description(), potentialGain);
+				cb::logger::instance().info("Sequence: {0}. Percentage Diff: {1}", sequence.description(), potentialGain);
 
 				if (potentialGain > 0)
 				{
