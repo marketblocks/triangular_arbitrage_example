@@ -1,6 +1,7 @@
 # Triangular Arbitrage Example
 An automated triangular arbitrage bot built using the marketblocks library.
 
+
 ## What is marketblocks?
 marketblocks is a high performance C++ library that provides an abstract interface for interacting with cryptocurrency exchanges. It also provides an extensive toolset and a robust framework for the rapid development and testing of automated cryptocurrency trading bots. 
 
@@ -17,6 +18,7 @@ marketblocks boasts the following key features:
 The list of supported exchanges is growing every day and marketblocks already supports:
   - Kraken
   - Coinbase Pro
+
 
 ## Why use marketblocks?
 Here are the ***top 5*** reasons to use marketblocks:
@@ -36,4 +38,29 @@ Easily switch between 'Live' and 'Live-Test' modes from a config file so that yo
   #### 5. Test Coverage
 All of marketblocks' features are extensively unit tested both through "happy path" scenarios and complex edge cases. All of the exchange REST API endpoints are also covered by automated integration tests that ensures a valid response is received when called with real account parameters.  
 
+
 ## How to use this example
+
+### Reading the Code
+The core algorithm is contained within `triangular_arbitrage.cpp`. 
+
+See `triangular_arbitrage::intialise(const strategy_initialiser&)` for the initialisation stage of the strategy. This is where all the possible triangular sequences are pre-computed and cached.
+
+See `triangular_arbitrage::run_iteration()` for the active stage of the strategy. This is where any order book updates are read and the associated sequences are checked for potential arbitrage opportunities.
+
+
+### Running the Example Build
+
+An example build has been provided in the `build` folder. Simply run `triangular_arbitrage_example.exe` to begin checking for triangular arbitrage opportunities with the default configurations.
+
+Various parameters may be adjusted through the config files located inside the `configs` folder. All config files are JSON encoded.
+
+<details><summary>##### `runner.json`</summary>
+
+- `exchangeIds` - Specifies which exchanges to run the strategy on. Specifying an empty array will use all supported exchanges.
+- `httpTimeout` - Specifies the timeout for HTTP requests in ms. A value of 0 disables the timeout.
+- `runMode` - Sets the run mode. Valid options are `"live"` or `"live_test"`.
+- `websocketTimeout` - Specifies the timeout for the websocket connection handshake. A value of 0 disables the timeout.
+  
+</details>
+
