@@ -8,7 +8,7 @@ marketblocks is a high performance C++ library that provides an abstract interfa
 ### Key Features
 marketblocks boasts the following key features:
   - A consistent and predictable API for interacting with any exchange
-  - All common REST API endpoints
+  - REST API endpoints
   - Order Book websocket stream subscriptions
   - Live and Live-Test run modes allowing the strategy to be tested in real time with zero risk
   - Built-in logging framework
