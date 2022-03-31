@@ -1,0 +1,6 @@
+{
+    "exchangeIds": ["kraken", "coinbase"],
+    "httpTimeout": 5000,
+    "runMode": "live_test",
+    "websocketTimeout": 5000
+}
