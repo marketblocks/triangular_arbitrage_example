@@ -4,11 +4,11 @@
 
 int main()
 {
+	// Create runner for strategy
+	mb::runner<triangular_arbitrage> runner{};
+
 	try
 	{
-		// Create runner for strategy
-		mb::runner<triangular_arbitrage> runner{};
-
 		// Start initialisation phase
 		runner.initialise();
 
