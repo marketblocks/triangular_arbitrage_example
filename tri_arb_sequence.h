@@ -6,16 +6,16 @@
 class sequence_step
 {
 private:
-	cb::tradable_pair _pair;
-	cb::trade_action _action;
+	mb::tradable_pair _pair;
+	mb::trade_action _action;
 
 public:
-	constexpr sequence_step(cb::tradable_pair pair, cb::trade_action action)
+	constexpr sequence_step(mb::tradable_pair pair, mb::trade_action action)
 		: _pair{ std::move(pair) }, _action{ std::move(action) }
 	{}
 
-	constexpr const cb::tradable_pair& pair() const noexcept { return _pair; }
-	constexpr const cb::trade_action& action() const noexcept { return _action; }
+	constexpr const mb::tradable_pair& pair() const noexcept { return _pair; }
+	constexpr const mb::trade_action& action() const noexcept { return _action; }
 
 	constexpr bool operator==(const sequence_step& other) const noexcept
 	{

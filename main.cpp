@@ -7,7 +7,7 @@ int main()
 	try
 	{
 		// Create runner for strategy
-		cb::runner<triangular_arbitrage> runner{};
+		mb::runner<triangular_arbitrage> runner{};
 
 		// Start initialisation phase
 		runner.initialise();
@@ -17,7 +17,7 @@ int main()
 	}
 	catch (const std::exception& e)
 	{
-		cb::logger::instance().critical(e.what());
+		mb::logger::instance().critical(e.what());
 	}
 
 	return 0;

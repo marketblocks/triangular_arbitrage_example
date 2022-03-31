@@ -13,6 +13,6 @@ private:
 public:
 	triangular_arbitrage() {}
 
-	void initialise(const cb::strategy_initialiser& initialiser);
+	void initialise(const mb::strategy_initialiser& initialiser);
 	void run_iteration();
 };
