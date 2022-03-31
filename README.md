@@ -61,7 +61,7 @@ Various parameters may be adjusted through the config files located inside the `
 - `exchangeIds` - Specifies which exchanges to run the strategy on. Specifying an empty array will use all supported exchanges.
 - `httpTimeout` - Specifies the timeout for HTTP requests in ms. A value of 0 disables the timeout.
 - `runMode` - Sets the run mode. Valid options are `"live"` or `"live_test"`.
-- `websocketTimeout` - Specifies the timeout for the websocket connection handshake. A value of 0 disables the timeout.
+- `websocketTimeout` - Specifies the timeout for the websocket connection handshake in ms. A value of 0 disables the timeout.
   
 </details>
 <details><summary>paper_trading.json</summary>
