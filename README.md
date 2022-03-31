@@ -20,7 +20,7 @@ The list of supported exchanges is growing every day and marketblocks currently 
 
 ## Why use marketblocks?
 Here are the top 5 reasons to use marketblocks:
-  1. # Exchange Independence
+  ###### 1. Exchange Independence
 The exchange API abstraction layer in marketblocks means that your trading bots can be developed without coupling to a specific exchange.
 This means that the exact same code required to execute your strategy on one exchange can be used to execute your strategy on any other exchange supported by                  marketblocks. 
   2. The marketblocks framework takes care of everything that goes on behind the scenes meaning 100% of the developer's time can be focused on implementing the logic for            your trading strategy. 
