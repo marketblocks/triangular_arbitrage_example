@@ -55,12 +55,19 @@ An example build has been provided in the `build` folder. Simply run `triangular
 
 Various parameters may be adjusted through the config files located inside the `configs` folder. All config files are JSON encoded.
 
-<details><summary>##### `runner.json`</summary>
+<details><summary>runner.json</summary>
 
 - `exchangeIds` - Specifies which exchanges to run the strategy on. Specifying an empty array will use all supported exchanges.
 - `httpTimeout` - Specifies the timeout for HTTP requests in ms. A value of 0 disables the timeout.
 - `runMode` - Sets the run mode. Valid options are `"live"` or `"live_test"`.
 - `websocketTimeout` - Specifies the timeout for the websocket connection handshake. A value of 0 disables the timeout.
+  
+</details>
+<details><summary>paper_trading.json</summary>
+Contains parameters used by the trading simulator when the Live-Test run mode is enabled
+  
+  - `balances` - Initial virtual balances
+  - `feeSchedule` - Simulated fees given as a list of pairs where the first element represents the minimum traded volume to reach that fee level and the second element represents the fee as a percentage.
   
 </details>
 
