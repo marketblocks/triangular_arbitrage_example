@@ -34,15 +34,3 @@ Contains parameters used by the trading simulator when the Live-Test run mode is
   
 </details>
 
-<details><summary>kraken.json</summary>
-  
-Contains parameters required to access authenticated endpoints when using the Kraken exchange
-  
-</details>
-
-<details><summary>coinbase.json</summary>
-  
-Contains parameters required to access authenticated endpoints when using the Coinbase exchange
-  
-</details>
-
