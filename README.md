@@ -1,6 +1,6 @@
 # Triangular Arbitrage Example
 
-In this example, all possible triangular sequences are first determined from the available trading pairs for each exchange. A websocket connection is then opened and order book updates are listened to in real-time, allowing us to act on small price fluctuations that may only last fractions of a second. This is a critical component of most high frequency trading systems. Finally, when an order book change is detected, the triangular sequences containing the updated asset pair and analyzed to look for triangular arbitrage opportunities. 
+In this example, all possible triangular sequences are first determined from the available trading pairs for each exchange. A websocket connection is then opened and order book updates are listened to in real-time, allowing us to act on small price fluctuations that may only last fractions of a second. This is a critical component of most high frequency trading systems. Finally when an order book change is detected, the triangular sequences containing the updated asset pair are analyzed to look for triangular arbitrage opportunities and trades are executed to take advantage of such opportunities.
 
 ### Reading the Code
 The core algorithm is contained within `triangular_arbitrage.cpp`. 
