@@ -1,7 +1,5 @@
 # Triangular Arbitrage Example
 
-## How to use this example
-
 ### Reading the Code
 The core algorithm is contained within `triangular_arbitrage.cpp`. 
 
