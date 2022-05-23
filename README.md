@@ -6,6 +6,9 @@ In this example:
   3. When an order book change is detected, the triangular sequences containing the updated asset pair are analyzed to look for triangular arbitrage opportunities.
   4. Trades are executed to take advantage of these opportunities if they are calculated as profitable.
 
+![image](https://user-images.githubusercontent.com/43093246/169861776-ec61c273-792b-453c-88af-0e10d24df07c.png)
+
+
 ### Reading the Code
 The core algorithm is contained within `triangular_arbitrage.cpp`. 
 
