@@ -3,7 +3,7 @@
 ### Reading the Code
 The core algorithm is contained within `triangular_arbitrage.cpp`. 
 
-See `triangular_arbitrage::intialise(const strategy_initialiser&)` for the initialisation stage of the strategy. This is where all the possible triangular sequences are pre-computed and cached.
+See `triangular_arbitrage::intialise()` for the initialisation stage of the strategy. This is where all the possible triangular sequences are pre-computed and cached.
 
 See `triangular_arbitrage::run_iteration()` for the active stage of the strategy. This is where any order book updates are read and the associated sequences are checked for potential arbitrage opportunities.
 
