@@ -62,8 +62,17 @@ namespace
 	{
 		return select_best_entry(
 			// get_order_book returns a snapshot of the current order book for a given pair at a specified depth
-			exchange->get_websocket_stream().get_order_book(sequenceStep.pair(), 1), 
+			exchange->get_websocket_stream().lock()->get_order_book(sequenceStep.pair(), 1),
 			sequenceStep.action());
+	}
+
+	// Helper method to check if all pairs in sequence are subscribed to
+	bool is_subscribed_to_all(std::shared_ptr<mb::websocket_stream> websocketStream, const tri_arb_sequence& sequence)
+	{
+		return 
+			websocketStream->is_order_book_subscribed(sequence.first().pair()) &&
+			websocketStream->is_order_book_subscribed(sequence.middle().pair()) &&
+			websocketStream->is_order_book_subscribed(sequence.last().pair());
 	}
 
 	// Compute all potential pairs and their associated actions for the middle trade of a triangular arbitrage sequence
@@ -130,7 +139,7 @@ namespace
 		}
 	}
 
-	std::unordered_map<mb::tradable_pair, std::vector<tri_arb_sequence>> get_tri_arb_sequences(std::shared_ptr<mb::exchange> exchange)
+	tri_arb_exchange_data get_exchange_data(std::shared_ptr<mb::exchange> exchange)
 	{
 		// Exchange REST endpoint for getting all pairs that can be traded on the exchange
 		std::vector<mb::tradable_pair> tradablePairs = exchange->get_tradable_pairs();
@@ -152,40 +161,62 @@ namespace
 			
 		}
 
-		return sequences;
+		return tri_arb_exchange_data{ std::move(sequences) };
 	}
 }
 
 // Called by runner framework to carry out any initialisation work. 
-// strategy_initialiser contains all exchange API classes that have been specified in the config file runner.json
-void triangular_arbitrage::initialise(const mb::strategy_initialiser& initaliser)
+// Exchanges are all API classes that have been specified in the config file runner.json
+void triangular_arbitrage::initialise(std::vector<std::shared_ptr<mb::exchange>> exchanges)
 {
-	for (auto exchange : initaliser.exchanges())
+	_exchangeData.reserve(exchanges.size());
+
+	for (auto exchange : exchanges)
 	{
 		// Compute all possible triangular sequences for given exchange
-		tri_arb_spec& spec = _specs.emplace_back(exchange, get_tri_arb_sequences(exchange));
+		tri_arb_exchange_data exchangeData = get_exchange_data(exchange);
 
 		// Subscribe to exchange's order book websocket feed for all trading pairs identified as part of a valid sequence
-		mb::websocket_stream& websocketStream = exchange->get_websocket_stream();
-		websocketStream.connect();
-		websocketStream.subscribe_order_book(spec.get_all_tradable_pairs());
+		std::shared_ptr<mb::websocket_stream> websocketStream = exchange->get_websocket_stream().lock();
+
+		if (websocketStream)
+		{
+			websocketStream->connect();
+			websocketStream->subscribe_order_book(exchangeData.get_all_sequence_pairs());
+		}
+
+		_exchangeData.emplace(exchange->id(), std::move(exchangeData));
 	}
+
+	_exchanges = std::move(exchanges);
 }
 
 // Called by runner framework in continuous loop
 void triangular_arbitrage::run_iteration()
 {
-	for (auto& spec : _specs)
+	for (auto exchange : _exchanges)
 	{
+		const tri_arb_exchange_data& exchangeData = _exchangeData.find(exchange->id())->second;
+		auto websocketStream = exchange->get_websocket_stream().lock();
+
+		if (!websocketStream)
+		{
+			continue;
+		}
+
 		// order_book_message_queue is a FIFO queue containing the tradable pairs with order book changes
-		while (!spec.order_book_message_queue().empty())
+		while (!websocketStream->get_order_book_message_queue().empty())
 		{
 			// Retrieve the pre-computed sequences relating to the particular trading pair
-			const std::vector<tri_arb_sequence>& sequences{ spec.get_sequences(spec.order_book_message_queue().pop()) };
-			std::shared_ptr<mb::exchange> exchange{ spec.exchange() };
+			const std::vector<tri_arb_sequence>& sequences{ exchangeData.get_sequences(websocketStream->get_order_book_message_queue().pop()) };
 
 			for (auto& sequence : sequences)
 			{
+				if (!is_subscribed_to_all(websocketStream, sequence))
+				{
+					continue;
+				}
+
 				sequence_prices prices
 				{
 					get_best_entry(exchange, sequence.first()), // First pair order book entry

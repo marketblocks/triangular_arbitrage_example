@@ -5,20 +5,13 @@
 int main()
 {
 	// Create runner for strategy
-	mb::runner<triangular_arbitrage> runner{};
+	mb::runner<triangular_arbitrage> runner = mb::create_runner<triangular_arbitrage>();
 
-	try
-	{
-		// Start initialisation phase
-		runner.initialise();
+	// Start initialisation phase
+	runner.initialise();
 
-		// Begin running strategy
-		runner.run();
-	}
-	catch (const std::exception& e)
-	{
-		mb::logger::instance().critical(e.what());
-	}
+	// Begin running strategy
+	runner.run();
 
 	return 0;
 }

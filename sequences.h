@@ -1,5 +1,7 @@
 #pragma once
 
+#include <unordered_map>
+
 #include "trading/tradable_pair.h"
 #include "trading/trading_constants.h"
 
@@ -43,7 +45,7 @@ public:
 		_middle{ std::move(middle) },
 		_last{ std::move(last) },
 		_baseCurrency{ std::move(baseCurrency) },
-		_description{ _first.pair().to_standard_string() + "->" + _middle.pair().to_standard_string() + "->" + _last.pair().to_standard_string() }
+		_description{ _first.pair().to_string('/') + "->" + _middle.pair().to_string('/') + "->" + _last.pair().to_string('/')}
 	{}
 
 	constexpr const sequence_step& first() const noexcept { return _first; }
@@ -51,4 +53,16 @@ public:
 	constexpr const sequence_step& last() const noexcept { return _last; }
 	constexpr const std::string& base_currency() const noexcept { return _baseCurrency; }
 	constexpr const std::string& description() const noexcept { return _description; }
+};
+
+class tri_arb_exchange_data
+{
+private:
+	std::unordered_map<mb::tradable_pair, std::vector<tri_arb_sequence>> _sequences;
+
+public:
+	tri_arb_exchange_data(std::unordered_map<mb::tradable_pair, std::vector<tri_arb_sequence>> sequences);
+
+	std::vector<mb::tradable_pair> get_all_sequence_pairs() const;
+	const std::vector<tri_arb_sequence>& get_sequences(const mb::tradable_pair& pair) const;
 };
