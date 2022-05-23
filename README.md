@@ -2,7 +2,7 @@
 
 In this example:
   1. All possible triangular sequences are determined from the available trading pairs for each exchange.
-  2. A websocket connection is opened and order book updates are listened to in real-time, allowing us to act on small price fluctuations that may only last fractions of a      second. This is a critical component of most high frequency trading systems.
+  2. A websocket connection is opened and order book updates are listened to in real-time, allowing us to act on small price fluctuations that may only last fractions of a      second.
   3. When an order book change is detected, the triangular sequences containing the updated asset pair are analyzed to look for triangular arbitrage opportunities.
   4. Trades are executed to take advantage of these opportunities if they are calculated as profitable.
 
