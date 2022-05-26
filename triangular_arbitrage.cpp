@@ -199,45 +199,44 @@ void triangular_arbitrage::run_iteration()
 		const tri_arb_exchange_data& exchangeData = _exchangeData.find(exchange->id())->second;
 		auto websocketStream = exchange->get_websocket_stream().lock();
 
-		if (!websocketStream)
+		if (!websocketStream || websocketStream->get_order_book_message_queue().empty())
 		{
 			continue;
 		}
 
-		// order_book_message_queue is a FIFO queue containing the tradable pairs with order book changes
-		while (!websocketStream->get_order_book_message_queue().empty())
+		// Retrieve the pre-computed sequences relating to the particular trading pair
+		const std::vector<tri_arb_sequence>& sequences{ exchangeData.get_sequences(websocketStream->get_order_book_message_queue().pop()) };
+
+		for (auto& sequence : sequences)
 		{
-			// Retrieve the pre-computed sequences relating to the particular trading pair
-			const std::vector<tri_arb_sequence>& sequences{ exchangeData.get_sequences(websocketStream->get_order_book_message_queue().pop()) };
-
-			for (auto& sequence : sequences)
+			if (!is_subscribed_to_all(websocketStream, sequence))
 			{
-				if (!is_subscribed_to_all(websocketStream, sequence))
-				{
-					continue;
-				}
+				continue;
+			}
 
-				sequence_prices prices
-				{
-					get_best_entry(exchange, sequence.first()), // First pair order book entry
+			sequence_prices prices
+			{
+				get_best_entry(exchange, sequence.first()), // First pair order book entry
 					
-					// Authenticated REST endpoint for getting the trading fee usually based on traded volume
-					exchange->get_fee(sequence.first().pair()), // First pair trading fee
-					get_best_entry(exchange, sequence.middle()), // Middle pair
-					exchange->get_fee(sequence.middle().pair()),
-					get_best_entry(exchange, sequence.last()), // Final pair
-					exchange->get_fee(sequence.last().pair())
-				};
+				// Authenticated REST endpoint for getting the trading fee usually based on traded volume
+				exchange->get_fee(sequence.first().pair()), // First pair trading fee
+				get_best_entry(exchange, sequence.middle()), // Middle pair
+				exchange->get_fee(sequence.middle().pair()),
+				get_best_entry(exchange, sequence.last()), // Final pair
+				exchange->get_fee(sequence.last().pair())
+			};
 
-				double potentialGain = calculate_potential_gain(sequence, prices);
-				mb::logger::instance().info("Sequence: {0}. Percentage Diff: {1}", sequence.description(), potentialGain);
+			double potentialGain = calculate_potential_gain(sequence, prices);
+			mb::logger::instance().info("Sequence: {0}. Percentage Diff: {1}", sequence.description(), potentialGain);
 
-				if (potentialGain > 0)
+			if (potentialGain > 0)
+			{
+				// Limit trade value to 5% of the available balance of the base currency of this sequence
+				constexpr int tradeValuePercentage = 0.05;
+				double tradeValue = tradeValuePercentage * get_balance(exchange, sequence.base_currency());
+
+				if (tradeValue > 0)
 				{
-					// Limit trade value to 5% of the available balance of the base currency of this sequence
-					constexpr int tradeValuePercentage = 0.05;
-					double tradeValue = tradeValuePercentage * get_balance(exchange, sequence.base_currency());
-
 					// Assuming sufficient volume available at price points, execute trades
 					// Exchange REST endpoint for adding a new order
 					exchange->add_order(create_trade(sequence.first(), prices.firstEntry.price(), tradeValue, prices.firstFee));
