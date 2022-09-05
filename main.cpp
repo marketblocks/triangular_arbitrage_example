@@ -8,7 +8,8 @@ int main()
 	mb::runner<triangular_arbitrage> runner = mb::create_runner<triangular_arbitrage>();
 
 	// Start initialisation phase
-	runner.initialise();
+	tri_arb_config config{ runner.load_custom_config<tri_arb_config>() };
+	runner.initialise(std::move(config));
 
 	// Begin running strategy
 	runner.run();
